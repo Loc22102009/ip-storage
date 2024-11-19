@@ -1,0 +1,41 @@
+<?php
+// Kết nối cơ sở dữ liệu MySQL
+$servername = "localhost";
+$username = "root"; // Thay đổi nếu cần
+$password = ""; // Thay đổi nếu cần
+$dbname = "user_login_db";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Kiểm tra kết nối
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
+}
+
+// Lấy dữ liệu từ form đăng nhập
+$user = $_POST['username'];
+$pass = $_POST['password'];
+
+// Kiểm tra nếu người dùng tồn tại trong cơ sở dữ liệu (đơn giản hóa)
+$sql = "SELECT * FROM users WHERE username = '$user' AND password = '$pass'";
+$result = $conn->query($sql);
+
+// Nếu đăng nhập thành công
+if ($result->num_rows > 0) {
+    // Lấy địa chỉ IP của người dùng
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+
+    // Cập nhật địa chỉ IP vào cơ sở dữ liệu
+    $update_sql = "UPDATE users SET ip_address = '$ip_address' WHERE username = '$user' AND password = '$pass'";
+    if ($conn->query($update_sql) === TRUE) {
+        echo "Đăng nhập thành công. Địa chỉ IP của bạn đã được lưu.";
+    } else {
+        echo "Lỗi khi cập nhật IP: " . $conn->error;
+    }
+} else {
+    echo "Tên người dùng hoặc mật khẩu không đúng!";
+}
+
+$conn->close();
+?>
+SELECT username, ip_address, login_time FROM users;
